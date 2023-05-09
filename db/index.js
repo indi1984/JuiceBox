@@ -22,7 +22,7 @@ async function getAllUsers() {
     FROM users;
   `);
   return rows;
-}
+};
 
 module.exports = {
   client,
