@@ -16,6 +16,26 @@ async function createUser({ name, username, location, active }) {
   };
 };
 
+async function updateUser(id, fields = {}) {
+  const setString = Object.keys(fields).map(
+    (key, index) => `"${ key }"=$${ index + 1 }`
+  ).join(', ');
+  if (setString.length === 0) {
+    return;
+  };
+  try {
+    const { rows: [ user ] } = await client.query(/*sql*/`
+      UPDATE users
+      SET ${ setString }
+      WHERE id=${ id }
+      RETURNING *;
+    `, Object.values(fields));
+    return user;
+  } catch (error) {
+    throw error;
+  };
+};
+
 async function getAllUsers() {
   const { rows } = await client.query(/*sql*/`
     SELECT id, username, name, location, active
@@ -27,5 +47,6 @@ async function getAllUsers() {
 module.exports = {
   client,
   getAllUsers,
-  createUser
+  createUser,
+  updateUser
 };
