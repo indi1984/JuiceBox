@@ -1,6 +1,6 @@
 const { Client } = require('pg');
 
-const client = new Client('postgres://172.26.20.249:5432/juicebox-dev');
+const client = new Client('postgres://pi-ai:5432/juicebox-dev');
 
 async function createUser({ username, password }) {
   try {
