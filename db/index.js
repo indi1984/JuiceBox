@@ -77,6 +77,18 @@ async function getAllUsers() {
   return rows;
 };
 
+async function getUserById(userId) {
+  try {
+    const { rows } = await client.query(/*sql*/`
+      SELECT * FROM users
+      WHERE id=${ userId };
+    `);
+    return rows;
+  } catch (error) {
+    throw error;
+  };
+};
+
 async function getAllPosts() {
   const { rows } = await client.query(/*sql*/`
     SELECT id, "authorId", title, content, active
@@ -102,7 +114,7 @@ module.exports = {
   getAllUsers,
   getAllPosts,
   getPostsByUser,
-  // getUserById,
+  getUserById,
   createUser,
   updateUser,
   createPost,
