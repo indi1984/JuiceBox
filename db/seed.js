@@ -148,11 +148,8 @@ async function testDB() {
     console.log("getAllPosts", posts);
 
     console.log("Calling updateUser on users[0]")
-    const updateUserResult = await updateUser(users[0].id,
-      {
-        name: "Newname Sogood",
-        location: "Lesterville, KY"
-      }
+    const updateUserResult = await updateUser(
+      users[0].id, { name: "Newname Sogood", location: "Lesterville, KY" }
     );
     console.log("Result:", updateUserResult);
 
