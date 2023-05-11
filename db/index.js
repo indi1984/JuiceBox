@@ -79,11 +79,17 @@ async function getAllUsers() {
 
 async function getUserById(userId) {
   try {
-    const { rows } = await client.query(/*sql*/`
-      SELECT * FROM users
+    const { rows: [user] } = await client.query(/*sql*/`
+      SELECT id, username, name, location, active 
+      FROM users
       WHERE id=${ userId };
     `);
-    return rows;
+    if (user.length === 0) {
+      return null;
+    } else {
+      user.posts = await getPostsByUser(userId);
+      return user;
+    };
   } catch (error) {
     throw error;
   };
