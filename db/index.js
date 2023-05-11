@@ -40,7 +40,7 @@ async function updateUser(id, fields = {}) {
     const { rows: [ user ] } = await client.query(/*sql*/`
       UPDATE users
       SET ${ setString }
-      WHERE id=${ id }
+      WHERE id = ${ id }
       RETURNING *;
     `, Object.values(fields));
     return user;
@@ -60,7 +60,7 @@ async function updatePost(id, fields = {}) {
     const { rows: [ post ] } = await client.query(/*sql*/`
       UPDATE posts
       SET ${ setString }
-      WHERE id=${ id }
+      WHERE id = ${ id }
       RETURNING *;
     `, Object.values(fields));
     return post;
@@ -107,7 +107,7 @@ async function getPostsByUser(userId) {
   try {
     const { rows } = await client.query(/*sql*/`
       SELECT * FROM posts
-      WHERE "authorId"=${ userId };
+      WHERE "authorId" = ${ userId };
     `);
     return rows;
   } catch (error) {
