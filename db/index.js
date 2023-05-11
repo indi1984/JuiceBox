@@ -16,19 +16,6 @@ async function createUser( { name, username, password, location, active } ) {
   };
 };
 
-async function createPost( { authorId, title, content, active } ) {
-  try {
-    const { rows } = await client.query(/*sql*/`
-      INSERT INTO posts ("authorId", title, content, active) 
-      VALUES ($1, $2, $3, $4)
-      RETURNING *;
-    `, [ authorId, title, content, active ]);
-    return rows;
-  } catch (error) {
-    throw error;
-  };
-};
-
 async function updateUser(id, fields = {}) {
   const setString = Object.keys(fields).map(
     (key, index) => `"${ key }"=$${ index + 1 }`
@@ -44,6 +31,19 @@ async function updateUser(id, fields = {}) {
       RETURNING *;
     `, Object.values(fields));
     return user;
+  } catch (error) {
+    throw error;
+  };
+};
+
+async function createPost( { authorId, title, content, active } ) {
+  try {
+    const { rows } = await client.query(/*sql*/`
+      INSERT INTO posts ("authorId", title, content, active) 
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `, [ authorId, title, content, active ]);
+    return rows;
   } catch (error) {
     throw error;
   };
