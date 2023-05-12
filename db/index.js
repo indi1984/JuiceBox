@@ -18,7 +18,7 @@ async function createUser( { name, username, password, location, active } ) {
 
 async function updateUser(id, fields = {}) {
   const setString = Object.keys(fields).map(
-    (key, index) => `"${ key }"=$${ index + 1 }`
+    (key, index) => `"${ key }" = $${ index + 1 }`
   ).join(', ');
   if (setString.length === 0) {
     return;
@@ -51,7 +51,7 @@ async function createPost( { authorId, title, content, active } ) {
 
 async function updatePost(id, fields = {}) {
   const setString = Object.keys(fields).map(
-    (key, index) => `"${ key }"=$${ index + 1 }`
+    (key, index) => `"${ key }" = $${ index + 1 }`
   ).join(', ');
   if (setString.length === 0) {
     return;
@@ -70,19 +70,23 @@ async function updatePost(id, fields = {}) {
 };
 
 async function getAllUsers() {
-  const { rows } = await client.query(/*sql*/`
-    SELECT id, username, name, location, active
-    FROM users;
-  `);
-  return rows;
+  try {
+    const { rows } = await client.query(/*sql*/`
+      SELECT id, name, username, password, location, active
+      FROM users;
+    `);
+    return rows;
+  } catch (error) {
+    throw error;
+  };
 };
 
 async function getUserById(userId) {
   try {
     const { rows: [user] } = await client.query(/*sql*/`
-      SELECT id, username, name, location, active 
+      SELECT id, name, username, location, active 
       FROM users
-      WHERE id=${ userId };
+      WHERE id = ${ userId };
     `);
     if (user.length === 0) {
       return null;
@@ -96,17 +100,22 @@ async function getUserById(userId) {
 };
 
 async function getAllPosts() {
-  const { rows } = await client.query(/*sql*/`
-    SELECT id, "authorId", title, content, active
-    FROM posts;
-  `);
-  return rows;
+  try {
+    const { rows } = await client.query(/*sql*/`
+      SELECT id, "authorId", title, content, active
+      FROM posts;
+    `);
+    return rows;
+  } catch (error) {
+    throw error;
+  };
 };
 
 async function getPostsByUser(userId) {
   try {
     const { rows } = await client.query(/*sql*/`
-      SELECT * FROM posts
+      SELECT * 
+      FROM posts
       WHERE "authorId" = ${ userId };
     `);
     return rows;
@@ -114,6 +123,84 @@ async function getPostsByUser(userId) {
     throw error;
   };
 };
+
+async function createTags(tagList) {
+  if (tagList.length === 0) { 
+    return; 
+  } else {
+    const insertValues = tagList.map(
+      (_, index) => `$${index + 1}`).join('), (');
+    const selectValues = tagList.map(
+      (_, index) => `$${index + 1}`).join(', ');
+    try {
+      await client.query(/*sql*/`
+        INSERT INTO tags (name)
+        VALUES (${ insertValues })
+        ON CONFLICT (name) DO NOTHING;
+      `, tagList);
+      const { rows } = await client.query(/*sql*/`
+        SELECT * FROM tags
+        WHERE name
+        IN (${ selectValues })
+      `, tagList);
+      return rows;
+    } catch (error) {
+      console.error("Error creating tags!", error);
+    };
+  };
+};
+
+async function createPostTag(postId, tagId) {
+  try {
+    console.log("Adding tags to posts!");
+    await client.query(/*sql*/`
+      INSERT INTO post_tags ("postId", "tagId")
+      VALUES ($1, $2)
+      ON CONFLICT ("postId", "tagId") DO NOTHING;
+    `, [ postId, tagId ]);
+  } catch (error) {
+    console.error("Error adding tags to posts!", error);
+  };
+};
+
+async function addTagsToPost(postId, tagList) {
+  try {
+    const createPostTagPromises = tagList.map(
+      tag => createPostTag(postId, tag.id)
+    );
+    await Promise.all(createPostTagPromises);
+    return await getPostById(postId);
+  } catch (error) {
+    throw error;
+  };
+};
+
+async function getPostById(postId) {
+  try {
+    const { rows: [ post ]  } = await client.query(/*sql*/`
+      SELECT *
+      FROM posts
+      WHERE id = $1;
+    `, [ postId ]);
+    const { rows: tags } = await client.query(/*sql*/`
+      SELECT tags.*
+      FROM tags
+      JOIN post_tags ON tags.id=post_tags."tagId"
+      WHERE post_tags."postId" = $1;
+    `, [ postId ])
+    const { rows: [author] } = await client.query(/*sql*/`
+      SELECT id, username, name, location
+      FROM users
+      WHERE id = $1;
+    `, [ post.authorId ])
+    post.tags = tags;
+    post.author = author;
+    delete post.authorId;
+    return post;
+  } catch (error) {
+    console.error("Error getting posts by ID!", error);
+  }
+}
 
 module.exports = {
   client,
@@ -124,5 +211,8 @@ module.exports = {
   createUser,
   updateUser,
   createPost,
-  updatePost  
+  updatePost,
+  createTags,
+  getPostById,
+  addTagsToPost
 };
