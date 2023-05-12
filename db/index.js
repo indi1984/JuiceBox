@@ -225,8 +225,8 @@ async function getPostsByTagName(tagName) {
     const { rows: postIds } = await client.query(/*sql*/`
       SELECT posts.id
       FROM posts
-      JOIN post_tags ON posts.id=post_tags."postId"
-      JOIN tags ON tags.id=post_tags."tagId"
+      JOIN post_tags ON posts.id = post_tags."postId"
+      JOIN tags ON tags.id = post_tags."tagId"
       WHERE tags.name = $1;
     `, [tagName]);
     return await Promise.all(
