@@ -8,7 +8,6 @@ const {
   updatePost, 
   getUserById,
   getPostById,
-  getPostsByUser,
   getPostsByTagName 
 } = require('./index');
 
