@@ -18,7 +18,7 @@ usersRouter.get('/', async (req, res) => {
 });
 
 usersRouter.post('/login', async (req, res, next) => {
-  const { id, username, password } = req.body;
+  const { username, password } = req.body;
   if (!username || !password) {
     next({
       name: "MissingCredentialsError",
@@ -26,12 +26,12 @@ usersRouter.post('/login', async (req, res, next) => {
     });
   };
   try {
-    const user = await getUserByUsername(username);
-    if (user && user.password == password) {
+    const { id, username, password } = await getUserByUsername(username);
+    if (username && password == password) {
       const token = jwt.sign({
-        id: user.id, 
-        username: user.username, 
-        password: user.password 
+        id: id, 
+        username: username, 
+        password: password 
       }, process.env.JWT_SECRET, {
         expiresIn: '1w'
       });
@@ -49,7 +49,7 @@ usersRouter.post('/login', async (req, res, next) => {
 });
 
 usersRouter.post('/register', async (req, res, next) => {
-  const { username, password, name, location } = req.body;
+  const { username, password, name, location, active } = req.body;
   try {
     const _user = await getUserByUsername(username);
     if (_user) {
