@@ -32,7 +32,9 @@ usersRouter.post('/login', async (req, res, next) => {
         id: user.id, 
         username: user.username, 
         password: user.password 
-      }, process.env.JWT_SECRET);
+      }, process.env.JWT_SECRET, {
+        expiresIn: '1w'
+      });
       res.send({ message: "you're logged in!", token: token });
     } else {
       next({ 
