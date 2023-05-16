@@ -11,6 +11,7 @@ const {
   getPostsByTagName 
 } = require('./index');
 
+
 async function dropTables() {
   try {
     console.log('Starting to drop tables...');
