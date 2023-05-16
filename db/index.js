@@ -115,6 +115,19 @@ async function getUserById(userId) {
   };
 };
 
+async function getUserByUsername(username) {
+  try {
+    const { rows: [user] } = await client.query(/*sql*/`
+      SELECT *
+      FROM users
+      WHERE username = $1;
+    `, [username]);
+    return user;
+  } catch (error) {
+    throw error;
+  };
+};
+
 async function getAllPosts() {
   try {
     const { rows } = await client.query(/*sql*/`
@@ -261,5 +274,6 @@ module.exports = {
   updatePost,
   getPostById,
   getPostsByTagName,
-  getAllTags
+  getAllTags,
+  getUserByUsername
 };

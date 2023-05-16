@@ -8,7 +8,8 @@ const {
   updatePost, 
   getUserById,
   getPostById,
-  getPostsByTagName 
+  getPostsByTagName,
+  getUserByUsername 
 } = require('./index');
 
 
@@ -186,6 +187,10 @@ async function testDB() {
     console.log("Calling getPostsByTagName with #happy");
     const postsWithHappy = await getPostsByTagName("#happy");
     console.log("Result:", postsWithHappy);
+
+    console.log("Getting user by Username!");
+    const getUserName = await getUserByUsername("Joshua");
+    console.log("Result:", getUserName);
 
     console.log("Finished database tests!");
   } catch (error) {
