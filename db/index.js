@@ -61,7 +61,7 @@ async function updatePost(postId, fields = {}) {
       await client.query(/*sql*/`
         UPDATE posts
         SET ${ setString }
-        WHERE id = ${ setString.length + 1 }
+        WHERE id = $2
         RETURNING *;
       `, [ ...Object.values(fields), postId ]);
     };
@@ -71,17 +71,17 @@ async function updatePost(postId, fields = {}) {
     const tagList = await createTags(tags);
     const tagListIdString = tagList.map(
       (tag) => `${ tag.id }`
-    );
+    ).join(', ');
     await client.query(/*sql*/`
       DELETE FROM post_tags
       WHERE "tagId"
       NOT IN (${ tagListIdString })
-      AND "postId" = $1
+      AND "postId" = $1;
     `, [ postId ]);
     await addTagsToPost(postId, tagList);
     return await getPostById(postId);
   } catch (error) {
-    console.error("Error updating post!", error);
+    throw error;
   };
 };
 
@@ -253,7 +253,7 @@ async function getPostsByTagName(tagName) {
       JOIN post_tags ON posts.id = post_tags."postId"
       JOIN tags ON tags.id = post_tags."tagId"
       WHERE tags.name = $1;
-    `, [tagName]);
+    `, [ tagName ]);
     return await Promise.all(
       postIds.map((post) => getPostById(post.id))
     );
