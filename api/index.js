@@ -43,11 +43,21 @@ apiRouter.use('/users', usersRouter);
 apiRouter.use('/posts', postsRouter);
 apiRouter.use('/tags', tagsRouter);
 
+//* 404 Handler (Non-Exiting Routes)
+apiRouter.get('*', (req, res, next) => {
+  res.status(404).send(/*html*/`
+    <h1>Sorry, this route does not exist!</h1>
+  `);
+});
+
 //* Error Handler
 apiRouter.use((error, req, res, next) => {
+  console.error(error);
   res.send({
     name: error.name,
-    message: error.message
+    message: error.message,
+    data: [],
+    error: true
   });
 });
 

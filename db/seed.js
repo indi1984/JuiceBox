@@ -71,8 +71,8 @@ async function createInitialUsers() {
     await createUser(
       {
         id: 1,
-        name: 'albert',
-        username: 'Al Bert',
+        name: 'Al Bert',
+        username: 'albert',
         password: 'bertie99',
         location: 'Sidney, Australia',
         active: true
@@ -81,8 +81,8 @@ async function createInitialUsers() {
     await createUser(
       {
         id: 2,
-        name: 'sandra',
-        username: 'Just Sandra',
+        name: 'Just Sandra',
+        username: 'sandra',
         password: '2sandy4me',
         location: "Ain't tellin'",
         active: true
@@ -91,8 +91,8 @@ async function createInitialUsers() {
     await createUser(
       {
         id: 3,
-        name: 'glamgal',
-        username: 'Joshua',
+        name: 'Joshua',
+        username: 'glamgal',
         password: 'soglam',
         location: 'Upper East Side',
         active: true
@@ -189,7 +189,7 @@ async function testDB() {
     console.log("Result:", postsWithHappy);
 
     console.log("Getting user by Username!");
-    const getUserName = await getUserByUsername("Joshua");
+    const getUserName = await getUserByUsername("glamgal");
     console.log("Result:", getUserName);
 
     console.log("Finished database tests!");

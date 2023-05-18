@@ -26,15 +26,13 @@ usersRouter.post('/login', async (req, res, next) => {
     });
   };
   try {
-    const { id, username, password } = await getUserByUsername(username);
-    if (username && password == password) {
+    const user = await getUserByUsername(username);
+    if (user && user.password == password) {
       const token = jwt.sign({
-        id: id, 
-        username: username, 
-        password: password 
-      }, process.env.JWT_SECRET, {
-        expiresIn: '1w'
-      });
+        id: user.id, 
+        username: user.username, 
+        password: user.password 
+      }, process.env.JWT_SECRET);
       res.send({ message: "you're logged in!", token: token });
     } else {
       next({ 
@@ -49,7 +47,7 @@ usersRouter.post('/login', async (req, res, next) => {
 });
 
 usersRouter.post('/register', async (req, res, next) => {
-  const { username, password, name, location, active } = req.body;
+  const { username, password, name, location } = req.body;
   try {
     const _user = await getUserByUsername(username);
     if (_user) {
@@ -63,7 +61,6 @@ usersRouter.post('/register', async (req, res, next) => {
       password,
       name,
       location,
-      active
     });
     const token = jwt.sign({ 
       id: user.id, 

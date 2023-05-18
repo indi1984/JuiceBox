@@ -2,14 +2,14 @@ const { Client } = require('pg');
 
 const client = new Client('postgres://pi-ai:5432/juicebox-dev');
 
-async function createUser( { name, username, password, location, active } ) {
+async function createUser( { name, username, password, location } ) {
   try {
     const { rows } = await client.query(/*sql*/`
-      INSERT INTO users (name, username, password, location, active) 
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO users (name, username, password, location) 
+      VALUES ($1, $2, $3, $4)
       ON CONFLICT (username) DO NOTHING
       RETURNING *;
-    `, [ name, username, password, location, active ]);
+    `, [ name, username, password, location ]);
     return rows;
   } catch (error) {
     console.error("Error creating user!", error);
@@ -36,13 +36,13 @@ async function updateUser(id, fields = {}) {
   };
 };
 
-async function createPost( { authorId, title, content, tags = [], active } ) {
+async function createPost( { authorId, title, content, tags = [] } ) {
   try {
     const { rows: [ post ] } = await client.query(/*sql*/`
-      INSERT INTO posts ("authorId", title, content, active) 
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO posts ("authorId", title, content) 
+      VALUES ($1, $2, $3)
       RETURNING *;
-    `, [ authorId, title, content, active ]);
+    `, [ authorId, title, content ]);
     const tagList = await createTags(tags);
     return await addTagsToPost(post.id, tagList);
   } catch (error) {
@@ -88,7 +88,7 @@ async function updatePost(postId, fields = {}) {
 async function getAllUsers() {
   try {
     const { rows } = await client.query(/*sql*/`
-      SELECT id, name, username, password, location, active
+      SELECT id, name, username, password, location
       FROM users;
     `);
     return rows;
@@ -100,7 +100,7 @@ async function getAllUsers() {
 async function getUserById(userId) {
   try {
     const { rows: [ user ] } = await client.query(/*sql*/`
-      SELECT id, name, username, location, active 
+      SELECT id, name, username, location 
       FROM users
       WHERE id = $1;
     `, [ userId ]);
@@ -131,7 +131,7 @@ async function getUserByUsername(username) {
 async function getAllPosts() {
   try {
     const { rows } = await client.query(/*sql*/`
-      SELECT id, "authorId", title, content, active
+      SELECT id, "authorId", title, content
       FROM posts;
     `);
     return rows;
@@ -146,7 +146,7 @@ async function getPostsByUser(userId) {
       SELECT id 
       FROM posts
       WHERE "authorId" = $1;
-    ` [ userId ]);
+    `, [ userId ]);
     const posts = await Promise.all(
       postIds.map((post) => getPostById( post.id ))
     );
