@@ -1,10 +1,9 @@
 require('dotenv').config();
 
 const { Client } = require('pg');
-
 const connectionString = process.env.DATABASE_URL;
-
 const client = new Client({ connectionString });
+
 
 async function createUser( { name, username, password, location } ) {
   try {
@@ -270,7 +269,7 @@ async function getPostsByTagName(tagName) {
   } catch (error) {
     console.error("Error getting posts by tag name!", error);
   };
-} ;
+};
 
 module.exports = {
   client,
