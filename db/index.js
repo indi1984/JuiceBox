@@ -88,7 +88,7 @@ async function updatePost(postId, fields = {}) {
 async function getAllUsers() {
   try {
     const { rows } = await client.query(/*sql*/`
-      SELECT id, name, username, password, location
+      SELECT id, name, username, password, location, active
       FROM users;
     `);
     return rows;
@@ -100,7 +100,7 @@ async function getAllUsers() {
 async function getUserById(userId) {
   try {
     const { rows: [ user ] } = await client.query(/*sql*/`
-      SELECT id, name, username, location 
+      SELECT id, name, username, location
       FROM users
       WHERE id = $1;
     `, [ userId ]);
@@ -131,7 +131,7 @@ async function getUserByUsername(username) {
 async function getAllPosts() {
   try {
     const { rows } = await client.query(/*sql*/`
-      SELECT id, "authorId", title, content
+      SELECT id, "authorId", title, content, active
       FROM posts;
     `);
     return rows;
@@ -153,6 +153,39 @@ async function getPostsByUser(userId) {
     return posts;
   } catch (error) {
     console.error("Error getting posts by user!", error);
+  };
+};
+
+async function getPostById(postId) {
+  try {
+    const { rows: [ post ]  } = await client.query(/*sql*/`
+      SELECT *
+      FROM posts
+      WHERE id = $1;
+    `, [ postId ]);
+    if (!post) {
+      throw {
+        name: "PostNotFoundError",
+        message: "Could not find a post with that postId."
+      };
+    };
+    const { rows: tags } = await client.query(/*sql*/`
+      SELECT tags.*
+      FROM tags
+      JOIN post_tags ON tags.id = post_tags."tagId"
+      WHERE post_tags."postId" = $1;
+    `, [ postId ])
+    const { rows: [ author ] } = await client.query(/*sql*/`
+      SELECT id, username, name, location
+      FROM users
+      WHERE id = $1;
+    `, [ post.authorId ])
+    post.tags = tags;
+    post.author = author;
+    delete post.authorId;
+    return post;
+  } catch (error) {
+    console.error("Error getting posts by ID!", error);
   };
 };
 
@@ -215,33 +248,6 @@ async function getAllTags() {
     return rows;
   } catch (error) {
     console.error("Error getting all tags!", error);
-  };
-};
-
-async function getPostById(postId) {
-  try {
-    const { rows: [ post ]  } = await client.query(/*sql*/`
-      SELECT *
-      FROM posts
-      WHERE id = $1;
-    `, [ postId ]);
-    const { rows: tags } = await client.query(/*sql*/`
-      SELECT tags.*
-      FROM tags
-      JOIN post_tags ON tags.id = post_tags."tagId"
-      WHERE post_tags."postId" = $1;
-    `, [ postId ])
-    const { rows: [ author ] } = await client.query(/*sql*/`
-      SELECT id, username, name, location
-      FROM users
-      WHERE id = $1;
-    `, [ post.authorId ])
-    post.tags = tags;
-    post.author = author;
-    delete post.authorId;
-    return post;
-  } catch (error) {
-    console.error("Error getting posts by ID!", error);
   };
 };
 
