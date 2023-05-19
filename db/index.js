@@ -1,6 +1,10 @@
+require('dotenv').config();
+
 const { Client } = require('pg');
 
-const client = new Client('postgres://pi-ai:5432/juicebox-dev');
+const connectionString = process.env.DATABASE_URL;
+
+const client = new Client({ connectionString });
 
 async function createUser( { name, username, password, location } ) {
   try {
