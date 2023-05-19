@@ -29,9 +29,8 @@ tagsRouter.get('/:tagName/posts', async (req, res, next) => {
   const { tagName } = req.params;
   try {
     const allTagPosts = await getPostsByTagName(tagName);
-    console.log(allTagPosts[0].author.id);
     const tagPosts = allTagPosts.filter((post) => {
-      return post.active || (req.user && posts.author.Id === req.user.id);
+      return post.active || (req.user && post.author.id === req.user.id);
     });
     res.send(
       { 
