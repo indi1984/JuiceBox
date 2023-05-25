@@ -1,9 +1,17 @@
 require('dotenv').config();
 
 const { Client } = require('pg');
-const connectionString = process.env.DATABASE_URL;
-const client = new Client({ connectionString });
 
+const connectionString = (
+  {
+    host: process.env.RDS_HOSTNAME,
+    user: process.env.RDS_USERNAME,
+    password: process.env.RDS_PASSWORD,
+    port: process.env.RDS_PORT,
+  }
+);
+
+const client = new Client(connectionString);
 
 async function createUser( { name, username, password, location } ) {
   try {
